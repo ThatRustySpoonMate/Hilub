@@ -1,8 +1,5 @@
 #include "main.h"
-#include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include "SSD1306Wire.h"
 
 #define WIRE Wire
 
@@ -12,11 +9,17 @@ AnalogDataSource EGTSensor = {A0, 230};
 //LoRaDataSource StarterVoltage;
 //LoRaDataSource CurrentSens1;
 
+Dashboard dashboard;
+
 // Initialize display
-Adafruit_SSD1306 display = Adafruit_SSD1306(128, 64, &WIRE);
+SSD1306Wire display(DISP_ADR, DISP_SDA, DISP_SCL);
+
+int lastDisplayTime = millis();
+int lastInputTime = millis();
+bool pageChanged = false;
 
 void setup() {
-  // put your setup code here, to run once:
+  Serial.begin(115200);
 
   // Create Widget for each Data Source
   UIWidget EGTSensorWidget;
@@ -32,24 +35,67 @@ void setup() {
   page0.widgetCountCurrent = 1;
 
   // Create dashboard to display the pages
-  Dashboard dashboard;
   dashboard.currentPage = 0;
   dashboard.pages[0] = page0;
 
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // Address 0x3C for 128x32
+  // Init display
+  display.init();
+  display.flipScreenVertically();
+  display.setFont(ArialMT_Plain_16);
+
+  // Configure button pins
+  pinMode(UserButton, INPUT);
+
+  //
+
+  // Testing purposes
+  randomSeed(analogRead(A0));
+}
+
+void drawPage(int pageNum) {
+  Serial.println("Drawing page " + String(pageNum));
+  display.clear();
+  display.drawString(8, 16, "EGT: " + String(EGTSensor.data) + "c");
   
 
-  Serial.begin(115200);
+  // Draw page indicator
+  for(int i = 0; i < dashboard.pageCount; i++) {
+    if(i == dashboard.currentPage){
+      display.drawCircle(48 + i * 8, 60, 3);
+    } else {
+      display.drawCircle(48 + i * 8, 60, 2);
+    }
+  }
+
+
+
+  display.display();
+  
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
   
-  display.print("B");
-  display.display();
+  if(!digitalRead(UserButton) && millis() - lastInputTime > 250) {
+    // Advance to the next page
+    dashboard.currentPage++;
 
-  Serial.println("Running");
+    if(dashboard.currentPage >= dashboard.pageCount) {
+      dashboard.currentPage = 0;
+    }
 
+    lastInputTime = millis();
+    pageChanged = true;
+    
+  }
 
+  if(millis() - lastDisplayTime > 1000 || pageChanged) {
+    drawPage(dashboard.currentPage);
+    lastDisplayTime = millis();
+    pageChanged = false;
+  }
+  
+  
+  EGTSensor.data = random(750);
 
 }

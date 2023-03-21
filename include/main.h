@@ -16,14 +16,17 @@
 #define ADC 1 // 0 = Disabled, 1 = Internal, 2 = ADS1115
 
 // Peripheral Config
+
+#define NUM_PAGES 4 // Number of pages to cycle through
 #if DISPLAY == 0
-    #define NUM_PAGES 0 // Number of pages to cycle through
     #define MAX_ITEMS_ON_PAGE 0 // Number of items on each page
     #define FIT_TWO_WIDE 0 // 0 = Disabled, 1 = Enabled
 #else if DISPLAY == 1
-    #define NUM_PAGES 8 // Number of pages to cycle through
     #define MAX_ITEMS_ON_PAGE 1 // Number of items on each page
     #define FIT_TWO_WIDE 0 // 0 = Disabled, 1 = Enabled
+    #define DISP_ADR 0x3c // I2C address of the display
+    #define DISP_SDA 21 // SDA pin for the display
+    #define DISP_SCL 22 // SCL pin for the display
 #endif 
 
 
@@ -91,8 +94,8 @@ typedef struct  {
 }UIPage;
 
 typedef struct  {
-    uint8_t pageCount;          // Total number of pages
-    uint8_t currentPage = 0;    // Current page -- index of the pages array
-    UIPage pages[NUM_PAGES];    // Pages
+    uint8_t pageCount = NUM_PAGES;   // Total number of pages
+    uint8_t currentPage = 0;         // Current page -- index of the pages array
+    UIPage pages[NUM_PAGES];         // Pages
 
 }Dashboard;
