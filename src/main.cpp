@@ -4,7 +4,7 @@
 #define WIRE Wire
 
 // Data source section
-DataSource EGTSensor = {230, 0, DataFilters{.filter0 = A0} };
+DataSource EGTSensor = {230, 0, DataFilters{.AnalogFilter = A0} };
 
 //LoRaDataSource StarterVoltage;
 //LoRaDataSource CurrentSens1;

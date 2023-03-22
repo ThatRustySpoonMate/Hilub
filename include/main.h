@@ -52,6 +52,7 @@
 #if GPS == 1
     #define GPS_RX_PIN 12 // RX pin for GPS
     #define GPS_TX_PIN 34 // TX pin for GPS
+    #define GPS_BAUD_RATE 9600 // Baud rate for GPS
 #endif
 
 #define UserButton 38 // Button on the board that is used to cycle through pages
@@ -66,10 +67,10 @@
 
 /** Define struct --------------------------------------------------- **/
 typedef union {
-  uint32_t filter0;     // ID of the Wireless packet to look for
-  uint32_t filter1;     // ID of the Lora packet to look for
-  uint32_t filter2;     // Pin of the Analog input
-  uint32_t filter3;     /** ID of the GPS parsed value to look for
+  uint16_t filter0;     // ID of the Wireless packet to look for
+  uint16_t filter1;     // ID of the Lora packet to look for
+  uint8_t filter2;     // Pin of the Analog input
+  uint8_t filter3;     /** ID of the GPS parsed value to look for
                         * 0 = Latitude
                         * 1 = Longitude
                         * 2 = Altitude
