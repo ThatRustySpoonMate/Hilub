@@ -56,44 +56,40 @@
 
 #define UserButton 38 // Button on the board that is used to cycle through pages
 
+
+/** Define macros for data source filters--------------------------------------------------- **/
+#define WirelessFilter filter0
+#define LoRaFilter filter1
+#define AnalogFilter filter2
+#define GPSFilter filter3
+
+
 /** Define struct --------------------------------------------------- **/
+typedef union {
+  uint32_t filter0;     // ID of the Wireless packet to look for
+  uint32_t filter1;     // ID of the Lora packet to look for
+  uint32_t filter2;     // Pin of the Analog input
+  uint32_t filter3;     /** ID of the GPS parsed value to look for
+                        * 0 = Latitude
+                        * 1 = Longitude
+                        * 2 = Altitude
+                        * 3 = Speed
+                        * 4 = Course
+                        * 5 = Date
+                        * 6 = Time
+                        * 7 = Satellites
+                        * 8 = HDOP
+                        * 9 = VDOP
+                        * 10 = PDOP
+                        * 11 = Fix
+                        */
+} DataFilters;
+
 typedef struct  {
   uint32_t data; // Most recent data
-  uint32_t packetID;         // ID of the Wireless packet to look for
-}WirelessDataSource;
-
-typedef struct {
-  uint32_t data;             // Most recent data
-  uint32_t packetID;         // ID of the LORA packet to look for
-  
-}LoRaDataSource;
-
-typedef struct {
-  uint32_t data;    // Most recent data
-  uint8_t pin;      // Analog pin
-  
-}AnalogDataSource;
-
-typedef struct {
-  uint32_t data;       // Most recent data
-  uint8_t pin_rx;      // UART TX pin
-  uint8_t pin_tx;      // UART TX pin
-  
-} GPSDataSource;
-
-typedef union  { // Union of all possible data sources
-  WirelessDataSource wireless;
-  LoRaDataSource lora;
-  AnalogDataSource analog;
-  GPSDataSource gps;
-}SourceType;
-
-typedef struct  {
-  uint8_t widgetID;      // Order of creation, starts at 0
-  SourceType dataSrc;    // Source of data for this widget
-  uint32_t widgetData;   // Currently displayed data
-  String widgetContext;  // Context of the data, such as "EGT: "
   uint8_t dataSrcType;  // Type of data source, 0 = Wireless, 1 = LoRa, 2 = Analog, 3 = GPS
+  DataFilters filters;  // Filters for the data source
+  //uint32_t filters[4]; // Filters for the data source
 
   void init_as_wireless(){
     dataSrcType = 0;
@@ -110,6 +106,40 @@ typedef struct  {
   void init_as_gps(){
     dataSrcType = 3;
   }
+
+  bool is_wireless(){
+    return dataSrcType == 0;
+  }
+
+  bool is_lora(){
+    return dataSrcType == 1;
+  }
+
+  bool is_analog(){
+    return dataSrcType == 2;
+  }
+
+  bool is_gps(){
+    return dataSrcType == 3;
+  }
+
+  // Returns this data source's specific filter
+  uint32_t get_filter() {
+    if(is_wireless()) return filters.filter0;
+    if(is_lora()) return filters.filter1;
+    if(is_analog()) return filters.filter2;
+    if(is_gps()) return filters.filter3;
+  }
+
+}DataSource;
+
+
+typedef struct  {
+  uint8_t widgetID;      // Order of creation, starts at 0
+  DataSource dataSrc;    // Source of data for this widget
+  uint32_t widgetData;   // Currently displayed data
+  String widgetContext;  // Context of the data, such as "EGT: "
+
 }UIWidget;
 
 typedef struct  {

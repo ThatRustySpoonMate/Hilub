@@ -4,7 +4,7 @@
 #define WIRE Wire
 
 // Data source section
-AnalogDataSource EGTSensor = {A0, 230};
+DataSource EGTSensor = {230, 0, DataFilters{.filter0 = A0} };
 
 //LoRaDataSource StarterVoltage;
 //LoRaDataSource CurrentSens1;
@@ -21,13 +21,15 @@ bool pageChanged = false;
 void setup() {
   Serial.begin(115200);
 
+  // Initialise data sources
+  EGTSensor.init_as_analog();
+
   // Create Widget for each Data Source
   UIWidget EGTSensorWidget;
   EGTSensorWidget.widgetID = 0;
-  EGTSensorWidget.dataSrc.analog = EGTSensor;
+  EGTSensorWidget.dataSrc = EGTSensor;
   EGTSensorWidget.widgetData = 230;
   EGTSensorWidget.widgetContext = "EGT: ";
-  EGTSensorWidget.init_as_analog();
 
   // Create Page and apply above widgets to the pages
   UIPage page0;
@@ -56,7 +58,7 @@ void setup() {
 void drawPage(int pageNum) {
   Serial.println("Drawing page " + String(pageNum));
   display.clear();
-  display.drawString(8, 16, dashboard.pages[pageNum].widgets[0].widgetContext + String(dashboard.pages[pageNum].widgets[0].dataSrc.analog.data) + "c");
+  display.drawString(8, 16, dashboard.pages[pageNum].widgets[0].widgetContext + String(dashboard.pages[pageNum].widgets[0].dataSrc.data) + "c");
   
 
   // Draw page indicator
