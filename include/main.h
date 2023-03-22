@@ -14,6 +14,7 @@
 #define LORA_MODULE 0 // 0 = Disabled, 1 = SX1276
 #define DISPLAY 1 // 0 = Disabled, 1 = SSD1306
 #define ADC 1 // 0 = Disabled, 1 = Internal, 2 = ADS1115
+#define GPS 1 // 0 = Disabled, 1 = Enabled
 
 // Peripheral Config
 
@@ -48,30 +49,43 @@
     #define LORA_FREQUENCY 915E6 // This may not be used
 #endif
 
+#if GPS == 1
+    #define GPS_RX_PIN 12 // RX pin for GPS
+    #define GPS_TX_PIN 34 // TX pin for GPS
+#endif
+
 #define UserButton 38 // Button on the board that is used to cycle through pages
 
 /** Define struct --------------------------------------------------- **/
 typedef struct  {
-  uint32_t packetID;         // ID of the Wireless packet to look for
-  uint32_t pollFreq;  // Frequency to update this data source -- Likely not used and will be placed in widget instead
   uint32_t data; // Most recent data
+  uint32_t packetID;         // ID of the Wireless packet to look for
 }WirelessDataSource;
 
 typedef struct {
+  uint32_t data;             // Most recent data
   uint32_t packetID;         // ID of the LORA packet to look for
-  uint32_t pollFreq;  // Frequency to update this data source -- Likely not used and will be placed in widget instead
-  uint32_t data; // Most recent data
+  
 }LoRaDataSource;
 
 typedef struct {
+  uint32_t data;    // Most recent data
   uint8_t pin;      // Analog pin
-  uint32_t data; // Most recent data
+  
 }AnalogDataSource;
+
+typedef struct {
+  uint32_t data;       // Most recent data
+  uint8_t pin_rx;      // UART TX pin
+  uint8_t pin_tx;      // UART TX pin
+  
+} GPSDataSource;
 
 typedef union  { // Union of all possible data sources
   WirelessDataSource wireless;
   LoRaDataSource lora;
   AnalogDataSource analog;
+  GPSDataSource gps;
 }SourceType;
 
 typedef struct  {
@@ -79,6 +93,23 @@ typedef struct  {
   SourceType dataSrc;    // Source of data for this widget
   uint32_t widgetData;   // Currently displayed data
   String widgetContext;  // Context of the data, such as "EGT: "
+  uint8_t dataSrcType;  // Type of data source, 0 = Wireless, 1 = LoRa, 2 = Analog, 3 = GPS
+
+  void init_as_wireless(){
+    dataSrcType = 0;
+  }
+
+  void init_as_lora(){
+    dataSrcType = 1;
+  }
+
+  void init_as_analog(){
+    dataSrcType = 2;
+  }
+
+  void init_as_gps(){
+    dataSrcType = 3;
+  }
 }UIWidget;
 
 typedef struct  {

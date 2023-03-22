@@ -27,6 +27,7 @@ void setup() {
   EGTSensorWidget.dataSrc.analog = EGTSensor;
   EGTSensorWidget.widgetData = 230;
   EGTSensorWidget.widgetContext = "EGT: ";
+  EGTSensorWidget.init_as_analog();
 
   // Create Page and apply above widgets to the pages
   UIPage page0;
@@ -55,7 +56,7 @@ void setup() {
 void drawPage(int pageNum) {
   Serial.println("Drawing page " + String(pageNum));
   display.clear();
-  display.drawString(8, 16, "EGT: " + String(EGTSensor.data) + "c");
+  display.drawString(8, 16, dashboard.pages[pageNum].widgets[0].widgetContext + String(dashboard.pages[pageNum].widgets[0].dataSrc.analog.data) + "c");
   
 
   // Draw page indicator
